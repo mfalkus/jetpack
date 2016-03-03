@@ -4574,7 +4574,7 @@ p {
 			}
 
 			$secrets = Jetpack::init()->generate_secrets();
-			Jetpack_Options::update_option( 'authorize', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] );
+			Jetpack_Options::update_option( 'authorize', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
 
 			@list( $secret ) = explode( ':', Jetpack_Options::get_option( 'authorize' ) );
 
@@ -4947,9 +4947,10 @@ p {
 	 */
 	public function generate_secrets() {
 	    $secrets = array(
-		wp_generate_password( 32, false ), // secret_1
-		wp_generate_password( 32, false ), // secret_2
-		( time() + 600 ), // eol ( End of Life )
+			wp_generate_password( 32, false ), // secret_1
+			wp_generate_password( 32, false ), // secret_2
+			( time() + 600 ), // eol ( End of Life )
+			get_current_user_id(), // ties the secrets to the current user
 	    );
 
 	    return $secrets;
@@ -5020,7 +5021,7 @@ p {
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::init()->generate_secrets();
 
-		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] );
+		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
 
 		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', Jetpack_Options::get_option( 'register' ) );
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
@@ -5050,6 +5051,7 @@ p {
 				'site_lang'       => get_locale(),
 				'timeout'         => $timeout,
 				'stats_id'        => $stats_id,
+				'state'           => get_current_user_id(),
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
